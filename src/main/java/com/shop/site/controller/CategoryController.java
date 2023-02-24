@@ -6,6 +6,7 @@ import com.shop.site.dto.response.CategoryResponseDto;
 import com.shop.site.model.Category;
 import com.shop.site.service.CategoryService;
 import com.shop.site.service.mapper.CategoryMapper;
+import com.shop.site.util.ParamSorterUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -27,11 +28,14 @@ import org.springframework.web.bind.annotation.RestController;
 public class CategoryController {
     private CategoryService categoryService;
     private CategoryMapper categoryMapper;
+    private ParamSorterUtil paramSorterUtil;
 
     public CategoryController(CategoryService categoryService,
-                              CategoryMapper categoryMapper) {
+                              CategoryMapper categoryMapper,
+                              ParamSorterUtil paramSorterUtil) {
         this.categoryService = categoryService;
         this.categoryMapper = categoryMapper;
+        this.paramSorterUtil = paramSorterUtil;
     }
 
     @PostMapping("/create")
@@ -52,7 +56,7 @@ public class CategoryController {
     }
 
     @PutMapping("/update/{categoryId}")
-    @Operation(summary = "Update product")
+    @Operation(summary = "Update category")
     public ResponseEntity<ApiResponse> updateCategory(
             @PathVariable Long categoryId,
             @RequestBody @Valid CategoryRequestDto requestDto) {
@@ -68,7 +72,7 @@ public class CategoryController {
     }
 
     @DeleteMapping("/delete/{categoryId}")
-    @Operation(summary = "Delete product by its id")
+    @Operation(summary = "Delete category by its id")
     public ResponseEntity<ApiResponse> deleteCategory(@PathVariable Long categoryId) {
         if (!categoryService.isCategoryPresent(categoryId)) {
             return new ResponseEntity<>(new ApiResponse(
@@ -80,7 +84,7 @@ public class CategoryController {
     }
 
     @GetMapping
-    @Operation(summary = "Get all existing products")
+    @Operation(summary = "Get all existing categories")
     public ResponseEntity<List<Category>> getAllCategories() {
         List<Category> allCategories = categoryService.findAll();
         return new ResponseEntity<>(allCategories, HttpStatus.OK);

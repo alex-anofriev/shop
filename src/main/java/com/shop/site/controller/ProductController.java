@@ -6,10 +6,14 @@ import com.shop.site.dto.response.ProductResponseDto;
 import com.shop.site.model.Product;
 import com.shop.site.service.ProductService;
 import com.shop.site.service.mapper.ProductMapper;
+import com.shop.site.util.ParamSorterUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
+import java.util.stream.Collectors;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -19,6 +23,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -27,11 +32,14 @@ import org.springframework.web.bind.annotation.RestController;
 public class ProductController {
     private ProductService productService;
     private ProductMapper productMapper;
+    private ParamSorterUtil paramSorterUtil;
 
     public ProductController(ProductService productService,
-                             ProductMapper productMapper) {
+                             ProductMapper productMapper,
+                             ParamSorterUtil paramSorterUtil) {
         this.productService = productService;
         this.productMapper = productMapper;
+        this.paramSorterUtil = paramSorterUtil;
     }
 
     @PostMapping("/create")
@@ -79,9 +87,17 @@ public class ProductController {
     }
 
     @GetMapping
-    @Operation(summary = "Get all existing products")
-    public ResponseEntity<List<Product>> getAllProducts() {
-        List<Product> allProducts = productService.findAll();
-        return new ResponseEntity<>(allProducts, HttpStatus.OK);
+    @Operation(summary = "Get existing products sorted and fixed amount")
+    public ResponseEntity<List<ProductResponseDto>> getAllProducts(
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "10") Integer count,
+            @RequestParam(defaultValue = "id") String sortBy) {
+        Sort sort = paramSorterUtil.parse(sortBy);
+        PageRequest pageRequest = PageRequest.of(page, count, sort);
+        List<ProductResponseDto> responseDtos = productService.findAll(pageRequest)
+                .stream()
+                .map(productMapper::mapToDto)
+                .collect(Collectors.toList());
+        return new ResponseEntity<>(responseDtos, HttpStatus.OK);
     }
 }
