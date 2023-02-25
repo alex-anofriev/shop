@@ -1,5 +1,6 @@
 package com.shop.site.model;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -19,14 +20,19 @@ public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(name = "name")
     private String name;
     @ManyToMany
     @JoinTable(name = "products_categories",
             joinColumns = @JoinColumn(name = "product_id"),
             inverseJoinColumns = @JoinColumn(name = "category_id"))
     private List<Category> categories;
+    @Column(name = "price")
     private BigDecimal price;
+    @Column(name = "rating")
     private double rating;
+    @Column(name = "description")
     private String description;
+    @Column(name = "product_image")
     private String productImage;
 }
