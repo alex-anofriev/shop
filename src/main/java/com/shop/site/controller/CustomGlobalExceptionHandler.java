@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
+
+import com.shop.site.exception.DataProcessingException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -48,6 +50,15 @@ public class CustomGlobalExceptionHandler extends ResponseEntityExceptionHandler
     @ExceptionHandler(NoSuchElementException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public Map<String, String> handleNoSuchElementException(NoSuchElementException ex) {
+        Map<String, String> errorMap = new LinkedHashMap<>();
+        errorMap.put("timestamp", LocalDateTime.now().toString());
+        errorMap.put("error message", ex.getLocalizedMessage());
+        return errorMap;
+    }
+
+    @ExceptionHandler(DataProcessingException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public Map<String, String> handleDataProcessingException(DataProcessingException ex) {
         Map<String, String> errorMap = new LinkedHashMap<>();
         errorMap.put("timestamp", LocalDateTime.now().toString());
         errorMap.put("error message", ex.getLocalizedMessage());

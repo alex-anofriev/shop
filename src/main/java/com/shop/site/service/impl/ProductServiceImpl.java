@@ -1,11 +1,13 @@
 package com.shop.site.service.impl;
 
+import com.shop.site.exception.DataProcessingException;
 import com.shop.site.model.Product;
 import com.shop.site.repository.ProductRepository;
 import com.shop.site.service.ProductService;
 import java.util.List;
 import java.util.NoSuchElementException;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -24,7 +26,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Product findById(Long id) {
         return productRepository.findById(id).orElseThrow(
-                () -> new NoSuchElementException("No product with id: " + id));
+                () -> new DataProcessingException("No product with id: " + id));
     }
 
     @Override
@@ -45,6 +47,11 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public List<Product> findAll(PageRequest pageRequest) {
         return productRepository.findAll(pageRequest).toList();
+    }
+
+    @Override
+    public List<Product> findByNameIsContainingIgnoreCase(String namePart, Pageable pageable) {
+        return productRepository.findByNameIsContainingIgnoreCase(namePart, pageable);
     }
 
     @Override

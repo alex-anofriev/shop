@@ -1,5 +1,6 @@
 package com.shop.site.service.impl;
 
+import com.shop.site.exception.DataProcessingException;
 import com.shop.site.model.User;
 import com.shop.site.repository.UserRepository;
 import com.shop.site.service.UserService;
@@ -25,7 +26,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User findById(Long id) {
         return userRepository.findById(id).orElseThrow(
-                () -> new NoSuchElementException("No user with id: " + id));
+                () -> new DataProcessingException("No user with id: " + id));
     }
 
     @Override

@@ -4,6 +4,7 @@ import com.shop.site.common.ApiResponse;
 import com.shop.site.dto.request.ProductRequestDto;
 import com.shop.site.dto.response.ProductResponseDto;
 import com.shop.site.model.Product;
+import com.shop.site.repository.ProductRepository;
 import com.shop.site.service.ProductService;
 import com.shop.site.service.mapper.ProductMapper;
 import com.shop.site.util.ParamSorterUtil;
@@ -12,6 +13,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.stream.Collectors;
+
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -33,13 +35,15 @@ public class ProductController {
     private ProductService productService;
     private ProductMapper productMapper;
     private ParamSorterUtil paramSorterUtil;
+    private ProductRepository productRepository;
 
     public ProductController(ProductService productService,
                              ProductMapper productMapper,
-                             ParamSorterUtil paramSorterUtil) {
+                             ParamSorterUtil paramSorterUtil, ProductRepository productRepository) {
         this.productService = productService;
         this.productMapper = productMapper;
         this.paramSorterUtil = paramSorterUtil;
+        this.productRepository = productRepository;
     }
 
     @PostMapping("/create")
@@ -99,5 +103,23 @@ public class ProductController {
                 .map(productMapper::mapToDto)
                 .collect(Collectors.toList());
         return new ResponseEntity<>(responseDtos, HttpStatus.OK);
+    }
+
+    @GetMapping("/name")
+    @Operation(summary = "Get existing products sorted, fixed amount and with part of product name")
+    public ResponseEntity<List<ProductResponseDto>> getAllByNamePart(
+            @RequestParam(defaultValue = "") String q,
+            @RequestParam(defaultValue = "0") Integer page,
+            @RequestParam(defaultValue = "10") Integer count,
+            @RequestParam(defaultValue = "id") String sortBy
+    ) {
+        Sort sort = paramSorterUtil.parse(sortBy);
+        PageRequest pageRequest = PageRequest.of(page, count, sort);
+        List<ProductResponseDto> collect = productService
+                .findByNameIsContainingIgnoreCase(q, pageRequest)
+                .stream()
+                .map(productMapper::mapToDto)
+                .collect(Collectors.toList());
+        return new ResponseEntity<>(collect, HttpStatus.OK);
     }
 }

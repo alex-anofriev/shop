@@ -1,8 +1,11 @@
 package com.shop.site.service.impl;
 
+import com.shop.site.exception.DataProcessingException;
 import com.shop.site.model.Category;
 import com.shop.site.repository.CategoryRepository;
 import com.shop.site.service.CategoryService;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import org.springframework.stereotype.Service;
@@ -23,7 +26,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public Category findById(Long id) {
         return categoryRepository.findById(id).orElseThrow(
-                () -> new NoSuchElementException("No category with id: " + id));
+                () -> new DataProcessingException("No category with id: " + id));
     }
 
     @Override
@@ -42,7 +45,11 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     public List<Category> findAllById(List<Long> ids) {
-        return categoryRepository.findAllById(ids);
+        List<Category> allById = categoryRepository.findAllById(ids);
+        if (allById.size() == 0) {
+            throw new DataProcessingException("There are no valid categories");
+        }
+        return allById;
     }
 
     @Override

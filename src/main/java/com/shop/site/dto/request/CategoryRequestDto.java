@@ -9,13 +9,11 @@ import lombok.Data;
 @Data
 @Schema(description = "Information about category sending from client to server")
 public class CategoryRequestDto {
-    @NotBlank
-    @NotNull
+    @NotBlank(message = "Name can not be null or blank")
     @Size(max = 255)
     @Schema(description = "The name of category")
     private String name;
-    @NotBlank
-    @NotNull
+    @NotBlank(message = "Description can not be null or blank")
     @Size(max = 1000)
     @Schema(description = "Description of category")
     private String description;
